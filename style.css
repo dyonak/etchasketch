@@ -1,0 +1,11 @@
+.blockRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px;
+    margin: 0px;
+}
+
+.block {
+    background-color: rgb(226, 226, 226);
+}
