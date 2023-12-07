@@ -1,5 +1,8 @@
 const GRIDSIZE = 960;
-const RAINBOW = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+const MINBLOCK = 10;
+
+let rainbowPainting = false;
+let shadedPainting = false;
 
 let currentColorIndex = 0;
 let blockSize = 32;
@@ -7,13 +10,36 @@ let blockSize = 32;
 gridContainer = document.querySelector('.etchasketchbox');
 sizeSlider = document.querySelector('.slider');
 
+rainbowToggle = document.querySelector('.rainbowToggle');
+shadedToggle = document.querySelector('.shadedToggle');
+
+rainbowToggle.addEventListener('change', (event) => {
+    if (event.target.checked) {
+        rainbowPainting = true;
+        shadedPainting = false;
+        shadedToggle.checked = false;
+    } else {
+        rainbowPainting = false;
+    }
+    clearBlocks();
+    fillBlocks();
+});
+
+shadedToggle.addEventListener('change', (event) => {
+    if (event.target.checked) {
+        shadedPainting = true;
+        rainbowPainting = false;
+        rainbowToggle.checked = false;
+    } else {
+        shadedPainting = false;
+    }
+    clearBlocks();
+    fillBlocks();
+});
+
 sizeSlider.addEventListener('mouseup', (e) => {
 
-    blockRows = document.querySelectorAll('.blockRow');
-    blockRows.forEach(element => {
-        element.remove();
-    });
-
+    clearBlocks();
     console.log(`Checking ${e.target.value} and ${GRIDSIZE}`);
     
     blockSize = e.target.value;
@@ -21,6 +47,8 @@ sizeSlider.addEventListener('mouseup', (e) => {
     while (GRIDSIZE % blockSize) {
         blockSize++;
     }
+
+    blockSize < MINBLOCK ? blockSize = MINBLOCK : blockSize = blockSize;
 
     console.log(`Set block size to ${blockSize}`);
     e.target.value = blockSize;
@@ -50,6 +78,42 @@ function rainbow(numOfSteps, step) {
     return (c);
 }
 
+function determineColorToPaint(e){
+    if (rainbowPainting) {
+        if (currentColorIndex >= numColors) {
+            currentColorIndex = 0;
+        }
+        let color = rainbow(numColors, currentColorIndex);
+        currentColorIndex++;
+        return color;
+    }
+    if (shadedPainting) {
+        currentShade = e.target.style.backgroundColor;
+        console.log(currentShade);
+        let colorNum = currentShade.slice(4,7);
+        colorNum = colorNum.replace(',','');
+        console.log(colorNum);
+        colorNum = parseInt(colorNum)
+        console.log(colorNum);
+        
+        if (colorNum >= 20){
+            return(`rgb(${colorNum-20}, ${colorNum-20}, ${colorNum-20})`)
+        };
+        if (colorNum <= 20){
+            return('rgb(0, 0, 0)')
+        }
+        return "rgb(220, 220, 220)";
+    }
+    return "rgb(180, 180, 180)";
+}
+
+function clearBlocks() {
+    blockRows = document.querySelectorAll('.blockRow');
+    blockRows.forEach(element => {
+        element.remove();
+    });
+}
+
 function fillBlockRow(blockRow, i) {
     while (i) {
         let block = document.createElement('div');
@@ -57,11 +121,7 @@ function fillBlockRow(blockRow, i) {
         block.style.width = blockSize + 'px';
         block.style.height = blockSize + 'px';
         block.addEventListener('mouseover', function(e) {
-            if (currentColorIndex >= numColors) {
-                currentColorIndex = 0;
-            }
-            e.target.style.backgroundColor = rainbow(numColors, currentColorIndex);
-            currentColorIndex++;
+            e.target.style.backgroundColor = determineColorToPaint(e);
         });
         blockRow.appendChild(block);
         i--;
