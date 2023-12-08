@@ -120,7 +120,7 @@ function fillBlockRow(blockRow, i) {
         block.className = 'block';
         block.style.width = blockSize + 'px';
         block.style.height = blockSize + 'px';
-        block.addEventListener('mouseover', function(e) {
+        block.addEventListener('pointerover', function(e) {
             e.target.style.backgroundColor = determineColorToPaint(e);
         });
         blockRow.appendChild(block);
